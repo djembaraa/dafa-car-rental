@@ -4,7 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { vehicles } from "@/data/vehicle";
+import { vehicles } from "../../data/vehicle";
 import { Search, Filter, Fuel, Users, Gauge } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
