@@ -17,17 +17,17 @@ const Footer = () => (
         </h4>
         <ul className="space-y-4 font-medium text-gray-400">
           <li>
-            <Link href="#" className="hover:text-white transition">
+            <Link href="/service" className="hover:text-white transition">
               Our Services
             </Link>
           </li>
           <li>
-            <Link href="#" className="hover:text-white transition">
+            <Link href="/terms" className="hover:text-white transition">
               Terms of Service
             </Link>
           </li>
           <li>
-            <Link href="#" className="hover:text-white transition">
+            <Link href="/about" className="hover:text-white transition">
               About Us
             </Link>
           </li>
@@ -47,10 +47,10 @@ const Footer = () => (
     <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center text-sm text-gray-500">
       <p>© 2025 Dafa Rental Group. All rights reserved.</p>
       <div className="flex gap-6 mt-4 md:mt-0 font-medium">
-        <Link href="#" className="hover:text-white">
+        <Link href="/privacy" className="hover:text-white">
           Privacy
         </Link>
-        <Link href="#" className="hover:text-white">
+        <Link href="/terms" className="hover:text-white">
           Terms
         </Link>
       </div>
