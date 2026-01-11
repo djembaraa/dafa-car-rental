@@ -25,7 +25,7 @@ export const vehicles: Vehicle[] = [
     name: "Toyota Alphard Transformer",
     type: "car",
     price: 2500000,
-    image: "/images/alphard.png", 
+    image: "/images/alphard.png",
     seats: 7,
     transmission: "Matic",
     fuel: "Bensin",
@@ -64,7 +64,6 @@ export const vehicles: Vehicle[] = [
     fuel: "Electric",
     year: 2024,
   },
-  // --- BIKES ---
   {
     id: 5,
     name: "Vespa Sprint S",
