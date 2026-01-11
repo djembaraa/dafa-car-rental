@@ -36,7 +36,8 @@ export default function RentalPage() {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [categoryFilter, setCategoryFilter] = useState<FilterType>("all");
 
-  const [selectedPricing, setSelectedPricing] = useState<Record<number, number>>({});
+  // State for selected duration per vehicle
+  const [selectedDurations, setSelectedDurations] = useState<{ [key: number]: number }>({});
 
   const categories: CategoryOption[] = [
     { id: "all", label: "All Units", icon: Settings },
@@ -62,8 +63,11 @@ export default function RentalPage() {
     }).format(price);
   };
 
-  const handlePriceChange = (id: number, index: number) => {
-    setSelectedPricing((prev) => ({ ...prev, [id]: index }));
+  const handleDurationChange = (vehicleId: number, optionIndex: number) => {
+    setSelectedDurations((prev) => ({
+      ...prev,
+      [vehicleId]: optionIndex,
+    }));
   };
 
   return (
@@ -175,17 +179,14 @@ export default function RentalPage() {
           >
             <AnimatePresence>
               {filteredData.length > 0 ? (
-                filteredData.map((item) => {
-                  const hasPricing = item.pricing && item.pricing.length > 0;
-                  const selectedIdx = selectedPricing[item.id] ?? -1;
-                  
-                  const displayPrice = selectedIdx === -1 
-                    ? item.price 
-                    : item.pricing?.[selectedIdx]?.price ?? item.price;
-                  
-                  const displayUnit = selectedIdx === -1
-                    ? "/Day"
-                    : `/${item.pricing?.[selectedIdx]?.label}`;
+                filteredData.map((vehicle) => {
+                  const selectedIdx = selectedDurations[vehicle.id] ?? -1;
+                  const currentPrice = selectedIdx === -1 
+                    ? vehicle.price 
+                    : vehicle.priceOptions?.[selectedIdx]?.price ?? vehicle.price;
+                  const priceUnit = selectedIdx === -1 
+                    ? "/Day" 
+                    : `/${vehicle.priceOptions?.[selectedIdx]?.label}`;
 
                   return (
                     <motion.div
@@ -194,19 +195,19 @@ export default function RentalPage() {
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0, scale: 0.95 }}
                       transition={{ duration: 0.3 }}
-                      key={item.id}
+                      key={vehicle.id}
                       className="group bg-white rounded-xl border border-gray-200 overflow-hidden hover:border-blue-700 hover:shadow-xl transition-all duration-300 flex flex-col"
                     >
-                      <div className="relative h-64 bg-gray-100 border-b border-gray-200">
+                      <div className="relative h-56 bg-gray-100 border-b border-gray-100 overflow-hidden">
                         <Image
-                          src={item.image}
-                          alt={item.name}
+                          src={vehicle.image}
+                          alt={vehicle.name}
                           fill
-                          className="object-cover group-hover:scale-105 transition duration-500 ease-in-out"
+                          className="object-cover group-hover:scale-105 transition duration-700 ease-in-out"
                         />
                         <div className="absolute top-4 left-4 bg-white/95 backdrop-blur-sm border border-gray-200 px-3 py-1.5 rounded-md text-[10px] font-bold uppercase tracking-wider text-gray-900 flex items-center gap-2 shadow-sm">
                           <CalendarDays size={12} className="text-blue-700" />
-                          {item.year}
+                          {vehicle.year}
                         </div>
                       </div>
 
@@ -215,33 +216,33 @@ export default function RentalPage() {
                           <div className="flex items-center gap-2 mb-2">
                             <span
                               className={`text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider ${
-                                item.type === "car"
+                                vehicle.type === "car"
                                   ? "bg-blue-50 text-blue-700"
                                   : "bg-orange-50 text-orange-700"
                               }`}
                             >
-                              {item.type}
+                              {vehicle.type}
                             </span>
                           </div>
                           <h3 className="font-bold text-lg text-gray-900 mb-4 tracking-tight leading-snug">
-                            {item.name}
+                            {vehicle.name}
                           </h3>
 
                           <div className="grid grid-cols-2 gap-y-3 gap-x-2 mb-6">
                             <div className="flex items-center gap-2 text-xs text-gray-500 font-medium">
                               <Settings size={14} className="text-blue-700" />
-                              {item.transmission}
+                              {vehicle.transmission}
                             </div>
                             <div className="flex items-center gap-2 text-xs text-gray-500 font-medium">
                               <Fuel size={14} className="text-blue-700" />
-                              {item.fuel}
+                              {vehicle.fuel}
                             </div>
                             <div className="flex items-center gap-2 text-xs text-gray-500 font-medium">
                               <Users size={14} className="text-blue-700" />
-                              {item.seats} Seat
+                              {vehicle.seats} Seat
                             </div>
                             <div className="flex items-center gap-2 text-xs text-gray-500 font-medium">
-                              {item.type === "car" ? (
+                              {vehicle.type === "car" ? (
                                 <Car size={14} className="text-blue-700" />
                               ) : (
                                 <Bike size={14} className="text-blue-700" />
@@ -250,19 +251,20 @@ export default function RentalPage() {
                             </div>
                           </div>
 
-                          {hasPricing && (
+                          {/* DROPDOWN LOGIC - Matches Home Page */}
+                          {vehicle.priceOptions && vehicle.priceOptions.length > 0 && (
                             <div className="mb-4">
                               <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wide block mb-1">
                                 Duration
                               </label>
                               <div className="relative">
                                 <select
-                                  className="w-full text-xs font-medium bg-gray-50 border border-gray-200 text-gray-700 py-2 pl-3 pr-8 rounded-lg appearance-none focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 cursor-pointer"
+                                  className="w-full text-xs font-medium bg-gray-50 border border-gray-200 text-gray-700 py-2 pl-3 pr-8 rounded-lg appearance-none focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 cursor-pointer transition-all"
                                   value={selectedIdx}
-                                  onChange={(e) => handlePriceChange(item.id, parseInt(e.target.value))}
+                                  onChange={(e) => handleDurationChange(vehicle.id, parseInt(e.target.value))}
                                 >
                                   <option value={-1}>1 Day (Daily)</option>
-                                  {item.pricing?.map((opt, idx) => (
+                                  {vehicle.priceOptions.map((opt, idx) => (
                                     <option key={idx} value={idx}>
                                       {opt.label}
                                     </option>
@@ -282,9 +284,9 @@ export default function RentalPage() {
                               {selectedIdx === -1 ? "Starts From" : "Total Price"}
                             </p>
                             <p className="text-blue-700 font-black text-lg">
-                              {formatRupiah(displayPrice)}
+                              {formatRupiah(currentPrice)}
                               <span className="text-xs text-gray-400 font-medium ml-1">
-                                {displayUnit}
+                                {priceUnit}
                               </span>
                             </p>
                           </div>
