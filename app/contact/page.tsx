@@ -87,22 +87,22 @@ export default function ContactPage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
                       <label className="text-sm font-bold text-gray-700 uppercase tracking-wide">First Name</label>
-                      <input type="text" placeholder="John" className="w-full px-5 py-4 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-blue-700 focus:ring-1 focus:ring-blue-700 transition-all" />
+                      <input type="text" placeholder="John" className="w-full px-6 py-4 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-blue-700 focus:ring-1 focus:ring-blue-700 transition-all" />
                     </div>
                     <div className="space-y-2">
                       <label className="text-sm font-bold text-gray-700 uppercase tracking-wide">Last Name</label>
-                      <input type="text" placeholder="Doe" className="w-full px-5 py-4 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-blue-700 focus:ring-1 focus:ring-blue-700 transition-all" />
+                      <input type="text" placeholder="Doe" className="w-full px-6 py-4 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-blue-700 focus:ring-1 focus:ring-blue-700 transition-all" />
                     </div>
                   </div>
 
                   <div className="space-y-2">
                     <label className="text-sm font-bold text-gray-700 uppercase tracking-wide">Email Address</label>
-                    <input type="email" placeholder="john@example.com" className="w-full px-5 py-4 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-blue-700 focus:ring-1 focus:ring-blue-700 transition-all" />
+                    <input type="email" placeholder="john@example.com" className="w-full px-6 py-4 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-blue-700 focus:ring-1 focus:ring-blue-700 transition-all" />
                   </div>
 
                   <div className="space-y-2">
                     <label className="text-sm font-bold text-gray-700 uppercase tracking-wide">Message</label>
-                    <textarea rows={4} placeholder="Tell us about your trip plans..." className="w-full px-5 py-4 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-blue-700 focus:ring-1 focus:ring-blue-700 transition-all resize-none"></textarea>
+                    <textarea rows={4} placeholder="Tell us about your trip plans..." className="w-full px-6 py-4 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-blue-700 focus:ring-1 focus:ring-blue-700 transition-all resize-none"></textarea>
                   </div>
 
                   <button className="w-full bg-blue-700 hover:bg-blue-800 text-white font-bold py-5 rounded-xl uppercase tracking-wider transition-all active:scale-95 flex items-center justify-center gap-2">

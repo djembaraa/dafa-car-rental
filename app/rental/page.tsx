@@ -17,7 +17,12 @@ import {
   ShieldCheck,
   Settings,
   LucideIcon,
+  ChevronDown,
+  CalendarDays,
 } from "lucide-react";
+
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 
 type FilterType = "all" | "car" | "bike";
 
@@ -27,92 +32,12 @@ interface CategoryOption {
   icon: LucideIcon;
 }
 
-const Navbar = () => (
-  <nav className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200">
-    <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-      <Link
-        href="/"
-        className="text-2xl font-black tracking-tighter text-gray-900"
-      >
-        DAFA<span className="text-blue-700">RENTAL.</span>
-      </Link>
-      <div className="hidden md:flex gap-10 text-sm font-bold text-gray-600 uppercase tracking-wider">
-        <Link href="/" className="hover:text-blue-700 transition-colors">
-          Home
-        </Link>
-        <Link href="/about" className="hover:text-blue-700 transition-colors">
-          About
-        </Link>
-        <Link href="/rental" className="text-blue-700 transition-colors">
-          Rental
-        </Link>
-        <Link href="/contact" className="hover:text-blue-700 transition-colors">
-          Contact
-        </Link>
-      </div>
-      <button className="bg-blue-700 text-white px-6 py-3 rounded-lg text-sm font-bold uppercase tracking-wider hover:bg-blue-800 transition-transform active:scale-95">
-        Book Now
-      </button>
-    </div>
-  </nav>
-);
-
-const Footer = () => (
-  <footer className="bg-gray-950 text-white pt-20 pb-10">
-    <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-12 mb-16 border-b border-gray-800 pb-16">
-      <div className="md:col-span-2">
-        <h2 className="text-3xl font-black tracking-tighter mb-6">
-          DAFA RENTAL.
-        </h2>
-        <p className="text-gray-400 leading-relaxed max-w-md">
-          Your professional transport partner. Providing premium fleets with the
-          highest safety standards for business and leisure travel.
-        </p>
-      </div>
-      <div>
-        <h4 className="text-white font-bold mb-6 uppercase text-sm tracking-widest">
-          Quick Links
-        </h4>
-        <ul className="space-y-4 font-medium text-gray-400">
-          <li>
-            <Link href="#" className="hover:text-white transition">
-              Our Fleet
-            </Link>
-          </li>
-          <li>
-            <Link href="#" className="hover:text-white transition">
-              Terms & Conditions
-            </Link>
-          </li>
-          <li>
-            <Link href="#" className="hover:text-white transition">
-              Company Profile
-            </Link>
-          </li>
-        </ul>
-      </div>
-      <div>
-        <h4 className="text-white font-bold mb-6 uppercase text-sm tracking-widest">
-          Contact
-        </h4>
-        <ul className="space-y-4 font-medium text-gray-400">
-          <li>Jakarta Selatan, Indonesia</li>
-          <li>+62 812 3456 7890</li>
-          <li>business@dafarental.com</li>
-        </ul>
-      </div>
-    </div>
-    <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center text-sm text-gray-500">
-      <p>© 2025 Dafa Rental Group. All rights reserved.</p>
-    </div>
-  </footer>
-);
-
 export default function RentalPage() {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [categoryFilter, setCategoryFilter] = useState<FilterType>("all");
 
-  // Translated Categories
+  const [selectedPricing, setSelectedPricing] = useState<Record<number, number>>({});
+
   const categories: CategoryOption[] = [
     { id: "all", label: "All Units", icon: Settings },
     { id: "car", label: "Cars", icon: Car },
@@ -127,6 +52,19 @@ export default function RentalPage() {
       categoryFilter === "all" ? true : item.type === categoryFilter;
     return matchesSearch && matchesCategory;
   });
+
+  const formatRupiah = (price: number) => {
+    return new Intl.NumberFormat("id-ID", {
+      style: "currency",
+      currency: "IDR",
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(price);
+  };
+
+  const handlePriceChange = (id: number, index: number) => {
+    setSelectedPricing((prev) => ({ ...prev, [id]: index }));
+  };
 
   return (
     <main className="min-h-screen bg-white font-sans text-gray-900 selection:bg-blue-700 selection:text-white">
@@ -237,84 +175,127 @@ export default function RentalPage() {
           >
             <AnimatePresence>
               {filteredData.length > 0 ? (
-                filteredData.map((item) => (
-                  <motion.div
-                    layout
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                    transition={{ duration: 0.3 }}
-                    key={item.id}
-                    className="group bg-white rounded-xl border border-gray-200 overflow-hidden hover:border-blue-700 hover:shadow-xl transition-all duration-300 flex flex-col"
-                  >
-                    <div className="relative h-56 bg-gray-100 border-b border-gray-100 overflow-hidden">
-                      <Image
-                        src={item.image}
-                        alt={item.name}
-                        fill
-                        className="object-cover group-hover:scale-105 transition duration-700 ease-in-out"
-                      />
-                      <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded text-[10px] font-black uppercase tracking-widest text-gray-900 shadow-sm border border-gray-200">
-                        {item.transmission}
-                      </div>
-                    </div>
+                filteredData.map((item) => {
+                  const hasPricing = item.pricing && item.pricing.length > 0;
+                  const selectedIdx = selectedPricing[item.id] ?? -1;
+                  
+                  const displayPrice = selectedIdx === -1 
+                    ? item.price 
+                    : item.pricing?.[selectedIdx]?.price ?? item.price;
+                  
+                  const displayUnit = selectedIdx === -1
+                    ? "/Day"
+                    : `/${item.pricing?.[selectedIdx]?.label}`;
 
-                    <div className="p-6 flex flex-col flex-grow">
-                      <div className="flex justify-between items-start mb-4">
-                        <h3 className="font-bold text-lg text-gray-900 tracking-tight leading-tight">
-                          {item.name}
-                        </h3>
-                        <div
-                          className={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider ${
-                            item.type === "car"
-                              ? "bg-blue-50 text-blue-700"
-                              : "bg-orange-50 text-orange-700"
-                          }`}
-                        >
-                          {item.type}
+                  return (
+                    <motion.div
+                      layout
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      transition={{ duration: 0.3 }}
+                      key={item.id}
+                      className="group bg-white rounded-xl border border-gray-200 overflow-hidden hover:border-blue-700 hover:shadow-xl transition-all duration-300 flex flex-col"
+                    >
+                      <div className="relative h-64 bg-gray-100 border-b border-gray-200">
+                        <Image
+                          src={item.image}
+                          alt={item.name}
+                          fill
+                          className="object-cover group-hover:scale-105 transition duration-500 ease-in-out"
+                        />
+                        <div className="absolute top-4 left-4 bg-white/95 backdrop-blur-sm border border-gray-200 px-3 py-1.5 rounded-md text-[10px] font-bold uppercase tracking-wider text-gray-900 flex items-center gap-2 shadow-sm">
+                          <CalendarDays size={12} className="text-blue-700" />
+                          {item.year}
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-3 gap-2 mb-6 pt-4 border-t border-gray-100">
-                        <div className="flex flex-col items-center justify-center p-2 bg-gray-50 rounded-lg">
-                          <Users size={16} className="text-gray-400 mb-1" />
-                          <span className="text-[10px] font-bold text-gray-700">
-                            {item.seats} Seat
-                          </span>
-                        </div>
-                        <div className="flex flex-col items-center justify-center p-2 bg-gray-50 rounded-lg">
-                          <Gauge size={16} className="text-gray-400 mb-1" />
-                          <span className="text-[10px] font-bold text-gray-700">
-                            {item.year}
-                          </span>
-                        </div>
-                        <div className="flex flex-col items-center justify-center p-2 bg-gray-50 rounded-lg">
-                          <Fuel size={16} className="text-gray-400 mb-1" />
-                          <span className="text-[10px] font-bold text-gray-700">
-                            {item.fuel}
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="mt-auto flex justify-between items-end">
-                        <div>
-                          <p className="text-[10px] text-gray-500 font-bold uppercase tracking-wide mb-0.5">
-                            Rental Price
-                          </p>
-                          <div className="text-blue-700 font-black text-xl">
-                            Rp {(item.price / 1000).toLocaleString("id-ID")}k
-                            <span className="text-xs text-gray-400 font-medium ml-1">
-                              /day
+                      <div className="p-6 flex flex-col flex-grow">
+                        <div className="flex-grow">
+                          <div className="flex items-center gap-2 mb-2">
+                            <span
+                              className={`text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider ${
+                                item.type === "car"
+                                  ? "bg-blue-50 text-blue-700"
+                                  : "bg-orange-50 text-orange-700"
+                              }`}
+                            >
+                              {item.type}
                             </span>
                           </div>
+                          <h3 className="font-bold text-lg text-gray-900 mb-4 tracking-tight leading-snug">
+                            {item.name}
+                          </h3>
+
+                          <div className="grid grid-cols-2 gap-y-3 gap-x-2 mb-6">
+                            <div className="flex items-center gap-2 text-xs text-gray-500 font-medium">
+                              <Settings size={14} className="text-blue-700" />
+                              {item.transmission}
+                            </div>
+                            <div className="flex items-center gap-2 text-xs text-gray-500 font-medium">
+                              <Fuel size={14} className="text-blue-700" />
+                              {item.fuel}
+                            </div>
+                            <div className="flex items-center gap-2 text-xs text-gray-500 font-medium">
+                              <Users size={14} className="text-blue-700" />
+                              {item.seats} Seat
+                            </div>
+                            <div className="flex items-center gap-2 text-xs text-gray-500 font-medium">
+                              {item.type === "car" ? (
+                                <Car size={14} className="text-blue-700" />
+                              ) : (
+                                <Bike size={14} className="text-blue-700" />
+                              )}
+                              Unit Ready
+                            </div>
+                          </div>
+
+                          {hasPricing && (
+                            <div className="mb-4">
+                              <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wide block mb-1">
+                                Duration
+                              </label>
+                              <div className="relative">
+                                <select
+                                  className="w-full text-xs font-medium bg-gray-50 border border-gray-200 text-gray-700 py-2 pl-3 pr-8 rounded-lg appearance-none focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 cursor-pointer"
+                                  value={selectedIdx}
+                                  onChange={(e) => handlePriceChange(item.id, parseInt(e.target.value))}
+                                >
+                                  <option value={-1}>1 Day (Daily)</option>
+                                  {item.pricing?.map((opt, idx) => (
+                                    <option key={idx} value={idx}>
+                                      {opt.label}
+                                    </option>
+                                  ))}
+                                </select>
+                                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
+                                  <ChevronDown size={14} />
+                                </div>
+                              </div>
+                            </div>
+                          )}
                         </div>
-                        <button className="w-10 h-10 rounded-lg bg-gray-900 text-white flex items-center justify-center group-hover:bg-blue-700 transition-colors shadow-lg shadow-gray-200">
-                          <ArrowRight size={18} strokeWidth={2.5} />
-                        </button>
+
+                        <div className="pt-6 border-t border-gray-100 flex justify-between items-end">
+                          <div>
+                            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wide mb-1">
+                              {selectedIdx === -1 ? "Starts From" : "Total Price"}
+                            </p>
+                            <p className="text-blue-700 font-black text-lg">
+                              {formatRupiah(displayPrice)}
+                              <span className="text-xs text-gray-400 font-medium ml-1">
+                                {displayUnit}
+                              </span>
+                            </p>
+                          </div>
+                          <button className="w-10 h-10 rounded-lg bg-gray-50 border border-gray-200 flex items-center justify-center text-gray-900 group-hover:bg-blue-700 group-hover:border-blue-700 group-hover:text-white transition-colors">
+                            <ArrowRight size={18} strokeWidth={2.5} />
+                          </button>
+                        </div>
                       </div>
-                    </div>
-                  </motion.div>
-                ))
+                    </motion.div>
+                  );
+                })
               ) : (
                 <div className="col-span-full py-20 text-center bg-gray-50 rounded-xl border border-dashed border-gray-300">
                   <div className="bg-white p-4 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4 border border-gray-200 shadow-sm">

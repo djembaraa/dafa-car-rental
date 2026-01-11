@@ -4,7 +4,7 @@ const Navbar = () => (
   <nav className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200">
     <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
       <div className="text-2xl font-black tracking-tighter text-gray-900">
-        DAFA<span className="text-blue-700">RENTAL.</span>
+        <a href="/"> DAFA<span className="text-blue-700">RENTAL.</span> </a>
       </div>
       <div className="hidden md:flex gap-10 text-sm font-bold text-gray-600 uppercase tracking-wider">
         <Link href="/" className="hover:text-blue-700 transition-colors">

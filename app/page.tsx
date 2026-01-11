@@ -14,6 +14,7 @@ import {
   Fuel,
   Settings,
   CalendarDays,
+  ChevronDown, 
 } from "lucide-react";
 import Image from "next/image";
 
@@ -23,6 +24,8 @@ import { vehicles, reviews } from "@/data/vehicle";
 
 export default function LandingPage() {
   const [filter, setFilter] = useState<"all" | "car" | "bike">("all");
+  
+  const [selectedDurations, setSelectedDurations] = useState<{ [key: number]: number }>({});
 
   const filteredVehicles =
     filter === "all" ? vehicles : vehicles.filter((v) => v.type === filter);
@@ -34,6 +37,13 @@ export default function LandingPage() {
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(price);
+  };
+
+  const handleDurationChange = (vehicleId: number, optionIndex: number) => {
+    setSelectedDurations((prev) => ({
+      ...prev,
+      [vehicleId]: optionIndex,
+    }));
   };
 
   return (
@@ -200,89 +210,120 @@ export default function LandingPage() {
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8"
           >
             <AnimatePresence>
-              {filteredVehicles.map((vehicle) => (
-                <motion.div
-                  layout
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  transition={{ duration: 0.4, ease: "easeInOut" }}
-                  key={vehicle.id}
-                  className="group bg-white rounded-xl border border-gray-200 overflow-hidden hover:border-blue-700 hover:shadow-lg transition-all duration-300 flex flex-col"
-                >
-                  <div className="relative h-64 bg-gray-100 border-b border-gray-200">
-                    <Image
-                      src={vehicle.image}
-                      alt={vehicle.name}
-                      fill
-                      className="object-cover group-hover:scale-105 transition duration-500 ease-in-out"
-                    />
-                    <div className="absolute top-4 left-4 bg-white/95 backdrop-blur-sm border border-gray-200 px-3 py-1.5 rounded-md text-[10px] font-bold uppercase tracking-wider text-gray-900 flex items-center gap-2 shadow-sm">
-                      <CalendarDays size={12} className="text-blue-700" />
-                      {vehicle.year}
-                    </div>
-                  </div>
+              {filteredVehicles.map((vehicle) => {
+                const selectedIdx = selectedDurations[vehicle.id] ?? -1;
+                const currentPrice = selectedIdx === -1 
+                  ? vehicle.price 
+                  : vehicle.priceOptions?.[selectedIdx]?.price ?? vehicle.price;
+                const priceUnit = selectedIdx === -1 
+                  ? "/Day" 
+                  : `/${vehicle.priceOptions?.[selectedIdx]?.label}`;
 
-                  <div className="p-6 flex flex-col flex-grow">
-                    <div className="flex-grow">
-                      <div className="flex items-center gap-2 mb-2">
-                        <span
-                          className={`text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider ${
-                            vehicle.type === "car"
-                              ? "bg-blue-50 text-blue-700"
-                              : "bg-orange-50 text-orange-700"
-                          }`}
-                        >
-                          {vehicle.type}
-                        </span>
-                      </div>
-                      <h3 className="font-bold text-lg text-gray-900 mb-4 tracking-tight leading-snug">
-                        {vehicle.name}
-                      </h3>
-
-                      <div className="grid grid-cols-2 gap-y-3 gap-x-2 mb-6">
-                        <div className="flex items-center gap-2 text-xs text-gray-500 font-medium">
-                          <Settings size={14} className="text-blue-700" />
-                          {vehicle.transmission}
-                        </div>
-                        <div className="flex items-center gap-2 text-xs text-gray-500 font-medium">
-                          <Fuel size={14} className="text-blue-700" />
-                          {vehicle.fuel}
-                        </div>
-                        <div className="flex items-center gap-2 text-xs text-gray-500 font-medium">
-                          <Users size={14} className="text-blue-700" />
-                          {vehicle.seats} Seat
-                        </div>
-                        <div className="flex items-center gap-2 text-xs text-gray-500 font-medium">
-                          {vehicle.type === "car" ? (
-                            <Car size={14} className="text-blue-700" />
-                          ) : (
-                            <Bike size={14} className="text-blue-700" />
-                          )}
-                          Unit Ready
-                        </div>
+                return (
+                  <motion.div
+                    layout
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    transition={{ duration: 0.4, ease: "easeInOut" }}
+                    key={vehicle.id}
+                    className="group bg-white rounded-xl border border-gray-200 overflow-hidden hover:border-blue-700 hover:shadow-lg transition-all duration-300 flex flex-col"
+                  >
+                    <div className="relative h-64 bg-gray-100 border-b border-gray-200">
+                      <Image
+                        src={vehicle.image}
+                        alt={vehicle.name}
+                        fill
+                        className="object-cover group-hover:scale-105 transition duration-500 ease-in-out"
+                      />
+                      <div className="absolute top-4 left-4 bg-white/95 backdrop-blur-sm border border-gray-200 px-3 py-1.5 rounded-md text-[10px] font-bold uppercase tracking-wider text-gray-900 flex items-center gap-2 shadow-sm">
+                        <CalendarDays size={12} className="text-blue-700" />
+                        {vehicle.year}
                       </div>
                     </div>
 
-                    <div className="pt-6 border-t border-gray-100 flex justify-between items-end">
-                      <div>
-                        <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wide mb-1">
-                          Starts From
-                        </p>
-                        <p className="text-blue-700 font-black text-lg">
-                          {formatRupiah(vehicle.price)}
-                          <span className="text-xs text-gray-400 font-medium ml-1">
-                            /Day
+                    <div className="p-6 flex flex-col flex-grow">
+                      <div className="flex-grow">
+                        <div className="flex items-center gap-2 mb-2">
+                          <span
+                            className={`text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider ${
+                              vehicle.type === "car"
+                                ? "bg-blue-50 text-blue-700"
+                                : "bg-orange-50 text-orange-700"
+                            }`}
+                          >
+                            {vehicle.type}
                           </span>
-                        </p>
+                        </div>
+                        <h3 className="font-bold text-lg text-gray-900 mb-4 tracking-tight leading-snug">
+                          {vehicle.name}
+                        </h3>
+
+                        <div className="grid grid-cols-2 gap-y-3 gap-x-2 mb-6">
+                          <div className="flex items-center gap-2 text-xs text-gray-500 font-medium">
+                            <Settings size={14} className="text-blue-700" />
+                            {vehicle.transmission}
+                          </div>
+                          <div className="flex items-center gap-2 text-xs text-gray-500 font-medium">
+                            <Fuel size={14} className="text-blue-700" />
+                            {vehicle.fuel}
+                          </div>
+                          <div className="flex items-center gap-2 text-xs text-gray-500 font-medium">
+                            <Users size={14} className="text-blue-700" />
+                            {vehicle.seats} Seat
+                          </div>
+                          <div className="flex items-center gap-2 text-xs text-gray-500 font-medium">
+                            {vehicle.type === "car" ? (
+                              <Car size={14} className="text-blue-700" />
+                            ) : (
+                              <Bike size={14} className="text-blue-700" />
+                            )}
+                            Unit Ready
+                          </div>
+                        </div>
+                        
+                        {vehicle.priceOptions && vehicle.priceOptions.length > 0 && (
+                          <div className="mb-4">
+                            <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wide block mb-1">Duration</label>
+                            <div className="relative">
+                              <select 
+                                className="w-full text-xs font-medium bg-gray-50 border border-gray-200 text-gray-700 py-2 pl-3 pr-8 rounded-lg appearance-none focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 cursor-pointer"
+                                value={selectedIdx}
+                                onChange={(e) => handleDurationChange(vehicle.id, parseInt(e.target.value))}
+                              >
+                                <option value={-1}>1 Day (Daily)</option>
+                                {vehicle.priceOptions.map((opt, idx) => (
+                                  <option key={idx} value={idx}>{opt.label}</option>
+                                ))}
+                              </select>
+                              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
+                                <ChevronDown size={14} />
+                              </div>
+                            </div>
+                          </div>
+                        )}
                       </div>
-                      <button className="w-10 h-10 rounded-lg bg-gray-50 border border-gray-200 flex items-center justify-center text-gray-900 group-hover:bg-blue-700 group-hover:border-blue-700 group-hover:text-white transition-colors">
-                        <ArrowRight size={18} strokeWidth={2.5} />
-                      </button>
+
+                      <div className="pt-6 border-t border-gray-100 flex justify-between items-end">
+                        <div>
+                          <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wide mb-1">
+                            {selectedIdx === -1 ? "Starts From" : "Total Price"}
+                          </p>
+                          <p className="text-blue-700 font-black text-lg">
+                            {formatRupiah(currentPrice)}
+                            <span className="text-xs text-gray-400 font-medium ml-1">
+                              {priceUnit}
+                            </span>
+                          </p>
+                        </div>
+                        <button className="w-10 h-10 rounded-lg bg-gray-50 border border-gray-200 flex items-center justify-center text-gray-900 group-hover:bg-blue-700 group-hover:border-blue-700 group-hover:text-white transition-colors">
+                          <ArrowRight size={18} strokeWidth={2.5} />
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                </motion.div>
-              ))}
+                  </motion.div>
+                );
+              })}
             </AnimatePresence>
           </motion.div>
         </div>

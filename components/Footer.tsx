@@ -39,7 +39,7 @@ const Footer = () => (
         </h4>
         <ul className="space-y-4 font-medium text-gray-400">
           <li>Jakarta Selatan, Indonesia</li>
-          <li>+62 812 3456 7890</li>
+          <li>+62-877-650-891-40</li>
           <li>business@dafarental.com</li>
         </ul>
       </div>
